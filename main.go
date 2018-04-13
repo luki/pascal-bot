@@ -4,8 +4,11 @@
 package main
 
 import (
+  "github.com/joho/godotenv"
   "github.com/bwmarrin/discordgo"
+
   "fmt"
+  "log"
   "strings"
 
   "os"
@@ -15,12 +18,15 @@ import (
   "./logic"
 )
 
-// WARNING: Remove tokens!!!!
-
 func main() {
+  err := godotenv.Load()
+  if err != nil {
+   log.Fatal("Error loading .env file")
+  }
+
   fmt.Printf("Hi, I'm Pascal and am up and running!\n")
 
-  token := "NDM0NDExMjQ3NDIxODgyMzg5.DbKTZQ.vT5N4EHhNnl6EP2oUAROnXqCXOY"
+  token := os.Getenv("TOKEN")
 
   sess, err := discordgo.New(fmt.Sprintf("Bot %s", token))
   if err != nil {
@@ -45,7 +51,7 @@ func main() {
 }
 
 func ready(s *discordgo.Session, event *discordgo.Ready) {
-  s.UpdateStatus(0, "!psc")
+  s.UpdateStatus(0, "calculation of (simple) equations!")
 }
 
 func messageEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -57,7 +63,7 @@ func messageEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
     }
 
     res, err := logic.GetCalculation(strings.TrimSuffix(m.Content, "!pascal"))
-    
+
     if err != nil {
       s.ChannelMessageSend(m.ChannelID, "Your equation doesn't make sense (to me)!")
       return
