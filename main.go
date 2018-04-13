@@ -11,6 +11,8 @@ import (
   "os"
   "os/signal"
   "syscall"
+
+  "./logic"
 )
 
 // WARNING: Remove tokens!!!!
@@ -50,10 +52,18 @@ func messageEvent(s *discordgo.Session, m *discordgo.MessageCreate) {
   if strings.HasPrefix(m.Content, "!pascal") {
 
     if strings.HasPrefix(m.Content, "!pascal intro") {
-      _, _ = s.ChannelMessageSend(m.ChannelID, "I'm Pascal!")
+      _, _ = s.ChannelMessageSend(m.ChannelID, "I'm Pascal; I'll do equations soon!")
+      return
     }
 
-    _, _ = s.ChannelMessageSend(m.ChannelID, "")
+    res, err := logic.GetCalculation(strings.TrimSuffix(m.Content, "!pascal"))
+    
+    if err != nil {
+      s.ChannelMessageSend(m.ChannelID, "Your equation doesn't make sense (to me)!")
+      return
+    }
+
+    s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%f", res))
   }
 
 }
